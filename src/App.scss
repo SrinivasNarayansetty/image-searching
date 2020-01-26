@@ -25,6 +25,18 @@ body {
     font-size: 16px;
 }
 
+.close-button {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    border-radius: 50%;
+    border: none;
+    padding: 2px 5px;
+    cursor: pointer;
+    background-color: red;
+    color: #FFFF;
+}
+
 /* styles for content section */
 .search-content-section {
     height: 100%;
@@ -52,18 +64,6 @@ body {
                     padding: 6px;
                     box-sizing: border-box;
                     min-width: 400px;
-                }
-
-                .close-button {
-                    position: absolute;
-                    top: 5px;
-                    right: 8px;
-                    border-radius: 50%;
-                    border: none;
-                    padding: 2px 5px;
-                    cursor: pointer;
-                    background-color: red;
-                    color: #FFFF;
                 }
             }
 

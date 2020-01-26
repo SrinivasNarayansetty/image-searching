@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
 import { isArray } from 'util';
 import loader from './images/Loader.gif';
 import Modal from 'react-modal';
@@ -15,7 +15,20 @@ const customStyles = {
   }
 }; 
 
-class App extends React.Component{
+/**
+ * @name : ImageSearching
+ * @description : This class is useful for searching images based on user input
+ * @argument {*} props
+ * @argument {*} propTypes
+ * @argument {*} defaultProps
+ * @author SrinivasNarayansetty
+ */
+class ImageSearching extends React.Component{
+  /**
+   * @constructor
+   * @param {*} context 
+   * @param {*} props 
+  */
   constructor(props) {
     super(props);
     this.state = {
@@ -49,30 +62,60 @@ class App extends React.Component{
     this.clearSearchInput = this.clearSearchInput.bind(this);
   }
 
+  /**
+   * @name hideSearchList
+   * @description Method used for hiding search inputs suggestions list
+   * @method ImageSearching
+   */
   hideSearchList() {
     this.setState({userTyping:false})
   }
 
+  /**
+   * @name showSearchList
+   * @description Method used for showing search inputs suggestions list
+   * @method ImageSearching
+   */
   showSearchList() {
     this.setState({userTyping:true})
   }
 
+  /**
+   * @name componentDidMount
+   * @description Once component successfully mounted then it will bind methods to window
+   * @method ImageSearching
+   */
   componentDidMount() {
     window.addEventListener('scroll', this.handleScroll);
   }
 
+  /**
+   * @name openPhotoModel
+   * @description Method used to open photo in popup model
+   * @method ImageSearching
+   */
   openPhotoModel(e) {
     this.modelPicData.title = e.target.getAttribute('data-title');
     this.modelPicData.src = e.target.src;
     this.setState({modalIsOpen:true})
   }
 
+  /**
+   * @name closeModal
+   * @description Method used to close photo popup model
+   * @method ImageSearching
+   */
   closeModal() {
     this.setState({modalIsOpen:false})
     this.modelPicData.title = '';
     this.modelPicData.src = '';
   }
 
+  /**
+   * @name handleScroll
+   * @description Method will be called when user starts scrolling in page
+   * @method ImageSearching
+   */
   handleScroll() {
     if((window.innerHeight + window.scrollY+ 300) >= (document.body.offsetHeight-300) && !this.apiCallSent) {
       this.getPhotos(true);
@@ -80,10 +123,20 @@ class App extends React.Component{
     }
   }
 
+  /**
+   * @name startLoading
+   * @description Method will show the loader in page when API request is going on
+   * @method ImageSearching
+   */
   startLoading() {
     this.setState({loading:true});
   }
 
+  /**
+   * @name getPhotos
+   * @description Method used for hitting API and getting photos
+   * @method ImageSearching
+   */
   getPhotos(fromScrollFlag, inputValue){
     let val;
     if(inputValue) {
@@ -135,7 +188,12 @@ class App extends React.Component{
    
   }
 
-  getTimeStampValue() {
+  /**
+   * @name getRandomKey
+   * @description Method will return random key using date value
+   * @method ImageSearching
+   */
+  getRandomKey() {
     this.counter = (this.counter + 1);
     let now = new Date();
     let timestamp = now.getUTCMilliseconds();
@@ -146,6 +204,11 @@ class App extends React.Component{
     return ('pic'+timestamp);
   }
 
+  /**
+   * @name debouncing
+   * @description Method will implements javascript debouncing technique
+   * @method ImageSearching
+   */
   debouncing(fn, delay) {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
@@ -153,6 +216,11 @@ class App extends React.Component{
     },delay);
   }
   
+  /**
+   * @name handleInput
+   * @description Method will set searchInput value when user is typing in search input
+   * @method ImageSearching
+   */
   handleInput(e) {
     let val = e.target.value.trim();
     this.setState({searchInput: val,userTyping:true});
@@ -161,12 +229,22 @@ class App extends React.Component{
     }
   }
 
+  /**
+   * @name changeSearchInput
+   * @description Method will set searchInput value to cliked search list item value
+   * @method ImageSearching
+   */
   changeSearchInput(e) {
     let val = e.target.getAttribute('data-value');
     this.setState({searchInput: val});
     this.getPhotos(false, val) ;
   }
 
+  /**
+   * @name clearFilters
+   * @description Method will clear the search input list history
+   * @method ImageSearching
+   */
   clearFilters() {
     if(localStorage.getItem('searchInputsList')) {
       let searchInputsList = [];
@@ -175,10 +253,21 @@ class App extends React.Component{
     }
   }
 
+  /**
+   * @name clearSearchInput
+   * @description Method will clear the search input value
+   * @method ImageSearching
+   */
   clearSearchInput() {
     this.setState({searchInput:''})
   }
 
+  /**
+   * @name render
+   * @description renders the component according to provided content and returns the appropriate HTML
+   * @method ImageSearching
+   * @returns HTML
+   */
   render() {
     let picturesData,searchItemsList,clearSearchItems,popUpModel,
         photoData = this.state.photoData,
@@ -195,8 +284,8 @@ class App extends React.Component{
             let srcPath = 'https://farm'+pic.farm+'.staticflickr.com/'+pic.server+'/'+pic.id+'_'+pic.secret+'.jpg';
 
             return(
-              <span key={this.getTimeStampValue()} className="view-pic-span" onClick={this.openPhotoModel}>
-                  <img alt="dogs" data-title={pic.title} className="view-pic" src={srcPath} />
+              <span key={this.getRandomKey()} className="view-pic-span br5" onClick={this.openPhotoModel}>
+                  <img alt="dogs" data-title={pic.title} className="view-pic br5" src={srcPath} />
               </span>             
             )
           })
@@ -215,12 +304,12 @@ class App extends React.Component{
         if(searchList.length > 0) {
           searchItemsList = searchList.map((key) => {
             return (
-              <li className="serch-list-item" data-value={key} key={this.getTimeStampValue()} onClick={this.changeSearchInput}>
+              <li className="serch-list-item" data-value={key} key={this.getRandomKey()} onClick={this.changeSearchInput}>
                 {key}
               </li>)
           });
 
-          clearSearchItems = <button className="clear-button" onClick={this.clearFilters}>Clear</button>
+          clearSearchItems = <button className="clear-button br3 fs16" onClick={this.clearFilters}>Clear</button>
         }
       }
     } else {
@@ -239,7 +328,7 @@ class App extends React.Component{
                       <button onClick={this.closeModal} className="close-button">X</button>
                       <div className="model-image-section">
                         <h2 className="model-image-title">{this.modelPicData.title}</h2>
-                        <img alt={this.modelPicData.title} src={this.modelPicData.src} className="model-image"/>  
+                        <img alt={this.modelPicData.title} src={this.modelPicData.src} className="model-image br5"/>  
                       </div>
                       
 
@@ -254,14 +343,14 @@ class App extends React.Component{
               <h3>Search Photos</h3>
               <div className="search-input-section" onMouseLeave={this.hideSearchList}> 
                 <div className="search-input-div">
-                  <input value={this.state.searchInput} className="searchInput" placeholder="search item" type="text" onChange={this.handleInput} onKeyDown={this.handleInput} onFocus={this.showSearchList}></input>
+                  <input value={this.state.searchInput} className="search-input br3 fs16" placeholder="search item" type="text" onChange={this.handleInput} onKeyDown={this.handleInput} onFocus={this.showSearchList}></input>
                   <button className="close-button" onClick={this.clearSearchInput}>X</button>
                 </div>
-                <div className="search-list-section">
-					<ul className="search-list">
-					{searchItemsList}
-					</ul>
-					{clearSearchItems}
+                <div className="search-list-section br3">
+                  <ul className="search-list">
+                    {searchItemsList}
+                  </ul>
+                  {clearSearchItems}
                 </div>
               </div>
           </div>
@@ -277,4 +366,4 @@ class App extends React.Component{
 
 Modal.setAppElement('#root')
 
-export default App;
+export default ImageSearching;

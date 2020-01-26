@@ -252,7 +252,7 @@ class App extends React.Component{
           <h1>SUPPLY AI ReactJS Assignment</h1>
           <div className="search-bar-section">
               <h3>Search Photos</h3>
-              <div className="search-input-section">
+              <div className="search-input-section" onMouseLeave={this.hideSearchList}> 
                 <div className="search-input-div">
                   <input value={this.state.searchInput} className="searchInput" placeholder="search item" type="text" onChange={this.handleInput} onKeyDown={this.handleInput} onFocus={this.showSearchList}></input>
                   <button className="close-button" onClick={this.clearSearchInput}>X</button>

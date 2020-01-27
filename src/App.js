@@ -225,7 +225,7 @@ class ImageSearching extends React.Component{
     let val = e.target.value.trim();
     this.setState({searchInput: val,userTyping:true});
     if(val && val !== '') {
-      this.debouncing(this.getPhotos, 2000);
+      this.debouncing(this.getPhotos, 1500);
     }
   }
 

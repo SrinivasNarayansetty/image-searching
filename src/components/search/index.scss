@@ -1,0 +1,26 @@
+.search-bar-section {
+    height:100px;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    color: #FFF;
+    padding: 10px;
+    flex-direction: column;
+    margin-bottom: 30px;
+
+    .search-input-section {
+        z-index: 998;
+
+        .search-input-div {
+            position: relative;
+
+            .search-input {
+                border: 1px solid #ded0d0;
+                padding: 6px;
+                box-sizing: border-box;
+                min-width: 400px;
+                outline: none;
+            }
+        }
+    }
+}

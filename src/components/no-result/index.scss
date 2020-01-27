@@ -1,0 +1,11 @@
+.no-result-found {
+    display: flex;
+    flex-direction: column;
+
+    .no-result-message {
+        margin: 5px;
+        font-size: 25px;
+        font-weight: bold;
+    }
+}
+  

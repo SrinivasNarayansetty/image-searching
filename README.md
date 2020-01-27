@@ -1,3 +1,8 @@
+# image-searching
+Image search page
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
@@ -67,6 +72,3 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 =======
-# image-searching
-Image search page
->>>>>>> 15f1af2f4fd3ca475c9a68761cc58e9e4857fa20

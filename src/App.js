@@ -224,20 +224,30 @@ class ImageSearching extends React.Component{
    * @returns HTML
    */
   render() {
-    let picturesData,
+    let picturesData,modalData,
         photoData = this.state.photoData;
-
+        
     if(this.state.loading) {
       picturesData = <LoaderComponent></LoaderComponent>
     } else {
         if(photoData.length > 0) {
-          picturesData = <ListComponent 
-                          photoData={photoData}
-                          openPhotoModel={(e) => this.openPhotoModel(e)}></ListComponent>
+        	picturesData = <ListComponent 
+								photoData={photoData}
+								openPhotoModel={(e) => this.openPhotoModel(e)}
+							></ListComponent>
         } else if(this.page > 1){
-          picturesData = <NoResultComponent></NoResultComponent>
+        	picturesData = <NoResultComponent></NoResultComponent>
         }     
-    }
+	}
+	
+    if(this.state.modalIsOpen) {
+      modalData = <ModelComponent 
+                    modelImgData={this.state.modelImgData} 
+					closeModal={this.closeModal}
+				></ModelComponent>
+    } else {
+		modalData = '';
+	}
 
     return (
       <>
@@ -245,20 +255,19 @@ class ImageSearching extends React.Component{
           <div className="search-content-section">
             <h1>SUPPLY AI ReactJS Assignment</h1>
             <SearchComponent 
-              userTyping = {this.state.userTyping}
-              searchInput = {this.state.searchInput}
-              onMouseLeave= {this.hideSearchList}
-              handleInput = {(e) => this.handleInput(e)}
-              onInputFocus = {this.showSearchList}
-              onSearchItemClick = {(e) => this.changeSearchInput(e)}
-              clearFilters = {this.clearFilters}
-              clearSearchInput= {this.clearSearchInput}
+        		userTyping = {this.state.userTyping}
+				searchInput = {this.state.searchInput}
+				onMouseLeave= {this.hideSearchList}
+				handleInput = {(e) => this.handleInput(e)}
+				onInputFocus = {this.showSearchList}
+				onSearchItemClick = {(e) => this.changeSearchInput(e)}
+				clearFilters = {this.clearFilters}
+				clearSearchInput= {this.clearSearchInput}
             ></SearchComponent>
             {picturesData}
           </div>
         </div>
-
-        {this.state.modalIsOpen && <ModelComponent modelImgData={this.state.modelImgData} closeModal={this.closeModal}></ModelComponent>}
+		{modalData}
       </>
     );
   }

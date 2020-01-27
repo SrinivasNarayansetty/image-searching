@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.scss';
 
+
 const ListComponent = (props) => {
   const photoData = props.photoData;
   const picturesData = photoData.map((pic,index) => {

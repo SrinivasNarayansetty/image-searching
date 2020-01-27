@@ -39,22 +39,6 @@ class ImageSearching extends React.Component{
     this.timer = '';
     this.page = 1;
     this.apiCallSent = false;
-    this.modelPicData = {
-      title : '',
-      src: ''
-    }
-    this.getPhotos = this.getPhotos.bind(this);
-    this.handleInput = this.handleInput.bind(this);
-    this.handleScroll = this.handleScroll.bind(this);
-    this.openPhotoModel = this.openPhotoModel.bind(this);
-    this.changeSearchInput = this.changeSearchInput.bind(this);
-    this.clearFilters = this.clearFilters.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.hideSearchList = this.hideSearchList.bind(this);
-    this.showSearchList = this.showSearchList.bind(this);
-    this.clearSearchInput = this.clearSearchInput.bind(this);
-    this.setDataToSearchList = this.setDataToSearchList.bind(this);
-    
   }
 
   /**
@@ -62,7 +46,7 @@ class ImageSearching extends React.Component{
    * @description Method used for hiding search inputs suggestions list
    * @method ImageSearching
    */
-  hideSearchList() {
+  hideSearchList = () => {
     this.setState({userTyping:false})
   }
 
@@ -71,7 +55,7 @@ class ImageSearching extends React.Component{
    * @description Method used for showing search inputs suggestions list
    * @method ImageSearching
    */
-  showSearchList() {
+  showSearchList = () => {
     this.setState({userTyping:true})
   }
 
@@ -89,7 +73,7 @@ class ImageSearching extends React.Component{
    * @description Method used to open photo in popup model
    * @method ImageSearching
    */
-  openPhotoModel(e) {
+  openPhotoModel = (e) => {
     let modelPicData = {
       'imgTitle' : e.target.getAttribute('data-title'),
       'imgSrc': e.target.src
@@ -102,7 +86,7 @@ class ImageSearching extends React.Component{
    * @description Method used to close photo popup model
    * @method ImageSearching
    */
-  closeModal() {
+  closeModal = () => {
     this.setState({modalIsOpen:false})
     this.setState({modelImgData:{}})
   }
@@ -112,7 +96,7 @@ class ImageSearching extends React.Component{
    * @description Method will be called when user starts scrolling in page
    * @method ImageSearching
    */
-  handleScroll() {
+  handleScroll = () => {
     if((window.innerHeight + window.scrollY+ 300) >= (document.body.offsetHeight-300) && !this.apiCallSent) {
       this.getPhotos(true);
       this.apiCallSent = true;
@@ -120,20 +104,11 @@ class ImageSearching extends React.Component{
   }
 
   /**
-   * @name startLoading
-   * @description Method will show the loader in page when API request is going on
-   * @method ImageSearching
-   */
-  startLoading() {
-    this.setState({loading:true});
-  }
-
-  /**
    * @name getPhotos
    * @description Method used for hitting API and getting photos
    * @method ImageSearching
    */
-  getPhotos(fromScrollFlag, inputValue){
+  getPhotos = (fromScrollFlag, inputValue) => {
     let val;
     if(inputValue) {
       val = inputValue;
@@ -146,7 +121,7 @@ class ImageSearching extends React.Component{
       this.setDataToSearchList(val);
   
       if(!fromScrollFlag) {
-        this.startLoading();
+        this.setState({loading:true});
       }
       this.getPhotoData(val, fromScrollFlag);
       
@@ -195,7 +170,7 @@ class ImageSearching extends React.Component{
    * @description Method will set searchInput value to cliked search list item value
    * @method ImageSearching
    */
-  changeSearchInput(e) {
+  changeSearchInput = (e) => {
     let val = e.target.getAttribute('data-value');
     this.setState({searchInput: val});
     this.getPhotos(false, val) ;
@@ -206,7 +181,7 @@ class ImageSearching extends React.Component{
    * @description Method will clear the search input list history
    * @method ImageSearching
    */
-  clearFilters() {
+  clearFilters = () => {
     if(localStorage.getItem('searchInputsList')) {
       let searchInputsList = [];
       localStorage.setItem('searchInputsList',JSON.stringify(searchInputsList));
@@ -219,7 +194,7 @@ class ImageSearching extends React.Component{
    * @description Method will clear the search input value
    * @method ImageSearching
    */
-  clearSearchInput() {
+  clearSearchInput = () => {
     this.setState({searchInput:''})
   }
 
@@ -228,7 +203,7 @@ class ImageSearching extends React.Component{
    * @description Sets data to search suggestions list
    * @method ImageSearching
    */
-  setDataToSearchList(val) {
+  setDataToSearchList = (val) => {
     let searchList = [];
     if(HelperObject.getFromLocalStorage('searchInputsList')) {
       searchList = HelperObject.getFromLocalStorage('searchInputsList')
@@ -258,7 +233,7 @@ class ImageSearching extends React.Component{
         if(photoData.length > 0) {
           picturesData = <ListComponent 
                           photoData={photoData}
-                          openPhotoModel={this.openPhotoModel}></ListComponent>
+                          openPhotoModel={(e) => this.openPhotoModel(e)}></ListComponent>
         } else if(this.page > 1){
           picturesData = <NoResultComponent></NoResultComponent>
         }     
@@ -272,10 +247,10 @@ class ImageSearching extends React.Component{
             <SearchComponent 
               userTyping = {this.state.userTyping}
               searchInput = {this.state.searchInput}
-              onMouseLeave={this.hideSearchList}
-              handleInput = {this.handleInput}
+              onMouseLeave= {this.hideSearchList}
+              handleInput = {(e) => this.handleInput(e)}
               onInputFocus = {this.showSearchList}
-              onSearchItemClick ={this.changeSearchInput}
+              onSearchItemClick = {(e) => this.changeSearchInput(e)}
               clearFilters = {this.clearFilters}
               clearSearchInput= {this.clearSearchInput}
             ></SearchComponent>

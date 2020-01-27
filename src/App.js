@@ -3,6 +3,8 @@ import './App.scss';
 import { isArray } from 'util';
 import loader from './images/Loader.gif';
 import Modal from 'react-modal';
+import commonConfig from './utils/config'
+import urls from './utils/urls';
 
 const customStyles = {
   content : {
@@ -167,8 +169,14 @@ class ImageSearching extends React.Component{
       }
       let photoData = this.state.photoData;
   
-  
-      fetch('https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=b0bf8bb928d0ee3aa069f809f9aeca73&tags='+val+'&format=json&nojsoncallback=1&page='+pageNumber)
+      let imageSearchUrl = urls.imageSearchUrl;
+      imageSearchUrl += '&api_key='+commonConfig.apiKey;
+      imageSearchUrl += '&tags='+val;
+      imageSearchUrl += '&format='+commonConfig.responseFormat;
+      imageSearchUrl += '&nojsoncallback='+commonConfig.nojsoncallback;
+      imageSearchUrl += '&page='+pageNumber;
+      
+      fetch(imageSearchUrl)
       .then(function(response){
         return response.json();
       })      

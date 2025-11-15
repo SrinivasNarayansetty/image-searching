@@ -1,8 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import ImageSearching from './App';
-import * as serviceWorker from './serviceWorker';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
 
-ReactDOM.render(<ImageSearching />, document.getElementById('root'));
-
-serviceWorker.unregister();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

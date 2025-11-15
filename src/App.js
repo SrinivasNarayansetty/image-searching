@@ -1,276 +1,135 @@
-import React from 'react';
-import './App.scss';
-import { isArray } from 'util';
-import commonConfig from './utils/config'
-import urls from './utils/urls';
-import SearchComponent from './components/search/index';
-import ListComponent from './components/list/index';
-import LoaderComponent from './components/loader/index';
-import NoResultComponent from './components/no-result/index';
-import ModelComponent from './components/model/index';
-import HelperObject from './utils/helper';
+import React, { useState, useCallback, useMemo } from 'react';
+import SearchComponent from './components/search';
+import ListComponent from './components/list';
+import LoaderComponent from './components/loader';
+import NoResultComponent from './components/no-result';
+import ModalComponent from './components/model';
+import { useImageSearch } from './hooks/useImageSearch';
+import { useInfiniteScroll } from './hooks/useInfiniteScroll';
+import { useSearchHistory } from './hooks/useSearchHistory';
+import { debounce } from './utils/helper';
+import { APP_CONFIG } from './utils/config';
 
 /**
- * @name : ImageSearching
- * @description : This class is useful for searching images based on user input
- * @argument {*} props
- * @argument {*} propTypes
- * @argument {*} defaultProps
- * @author SrinivasNarayansetty
+ * Main App Component - Image Search Application
+ * Modern React 18 implementation with hooks and Tailwind CSS
  */
-class ImageSearching extends React.Component{
-  /**
-   * @constructor
-   * @param {*} context 
-   * @param {*} props 
-  */
-  constructor(props) {
-    super(props);
-    this.state = {
-      pictures: [],
-      searchInput: '',
-      photoData:[],
-      page:1,
-      loading: false,
-      userTyping: false,
-      modalIsOpen: false,
-      modelImgData: {}
+function App() {
+  const [searchInput, setSearchInput] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const { photos, loading, searchPhotos, hasPhotos } = useImageSearch();
+  const { searchHistory, addToHistory, clearHistory } = useSearchHistory();
+
+  // Debounced search function
+  const debouncedSearch = useMemo(
+    () => debounce((query) => {
+      searchPhotos(query, false);
+      addToHistory(query);
+    }, APP_CONFIG.debounceDelay),
+    [searchPhotos, addToHistory]
+  );
+
+  // Handle search input change
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    setShowSuggestions(true);
+
+    if (value.trim()) {
+      debouncedSearch(value.trim());
     }
-    this.timer = '';
-    this.page = 1;
-    this.apiCallSent = false;
-  }
+  }, [debouncedSearch]);
 
-  /**
-   * @name hideSearchList
-   * @description Method used for hiding search inputs suggestions list
-   * @method ImageSearching
-   */
-  hideSearchList = () => {
-    this.setState({userTyping:false})
-  }
+  // Handle search from history
+  const handleHistoryItemClick = useCallback((query) => {
+    setSearchInput(query);
+    setShowSuggestions(false);
+    searchPhotos(query, false);
+  }, [searchPhotos]);
 
-  /**
-   * @name showSearchList
-   * @description Method used for showing search inputs suggestions list
-   * @method ImageSearching
-   */
-  showSearchList = () => {
-    this.setState({userTyping:true})
-  }
+  // Handle clear search
+  const handleClearSearch = useCallback(() => {
+    setSearchInput('');
+    setShowSuggestions(false);
+  }, []);
 
-  /**
-   * @name componentDidMount
-   * @description Once component successfully mounted then it will bind methods to window
-   * @method ImageSearching
-   */
-  componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll);
-  }
-
-  /**
-   * @name openPhotoModel
-   * @description Method used to open photo in popup model
-   * @method ImageSearching
-   */
-  openPhotoModel = (e) => {
-    let modelPicData = {
-      'imgTitle' : e.target.getAttribute('data-title'),
-      'imgSrc': e.target.src
+  // Handle load more on scroll
+  const handleLoadMore = useCallback(() => {
+    if (searchInput.trim() && !loading) {
+      searchPhotos(searchInput.trim(), true);
     }
-    this.setState({modalIsOpen:true ,modelImgData:modelPicData})
-  }
+  }, [searchInput, loading, searchPhotos]);
 
-  /**
-   * @name closeModal
-   * @description Method used to close photo popup model
-   * @method ImageSearching
-   */
-  closeModal = () => {
-    this.setState({modalIsOpen:false})
-    this.setState({modelImgData:{}})
-  }
+  // Infinite scroll
+  useInfiniteScroll(handleLoadMore, hasPhotos && !loading);
 
-  /**
-   * @name handleScroll
-   * @description Method will be called when user starts scrolling in page
-   * @method ImageSearching
-   */
-  handleScroll = () => {
-    if((window.innerHeight + window.scrollY+ 300) >= (document.body.offsetHeight-300) && !this.apiCallSent) {
-      this.getPhotos(true);
-      this.apiCallSent = true;
-    }
-  }
+  // Handle image modal
+  const handleImageClick = useCallback((photo) => {
+    setSelectedImage(photo);
+  }, []);
 
-  /**
-   * @name getPhotos
-   * @description Method used for hitting API and getting photos
-   * @method ImageSearching
-   */
-  getPhotos = (fromScrollFlag, inputValue) => {
-    let val;
-    if(inputValue) {
-      val = inputValue;
-    } else {
-      val = this.state.searchInput;
-    }
+  const handleCloseModal = useCallback(() => {
+    setSelectedImage(null);
+  }, []);
 
-    if(val && val.trim() !== '') {
-      this.setState({userTyping:false})
-      this.setDataToSearchList(val);
-  
-      if(!fromScrollFlag) {
-        this.setState({loading:true});
-      }
-      this.getPhotoData(val, fromScrollFlag);
-      
-    }
-  }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <header className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            Image Discovery
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Discover millions of beautiful images powered by Flickr
+          </p>
+        </header>
 
-  getPhotoData(val, fromScrollFlag) {
-    let photoData = this.state.photoData,
-        pageNumber = this.page,
-        imageSearchUrl = urls.imageSearchUrl+'&api_key='+commonConfig.apiKey+'&tags='+val+'&format='+commonConfig.responseFormat+'&nojsoncallback='+commonConfig.nojsoncallback+'&page='+pageNumber;
+        {/* Search Section */}
+        <SearchComponent
+          searchInput={searchInput}
+          showSuggestions={showSuggestions}
+          searchHistory={searchHistory}
+          onSearchChange={handleSearchChange}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          onHistoryItemClick={handleHistoryItemClick}
+          onClearSearch={handleClearSearch}
+          onClearHistory={clearHistory}
+        />
 
-    fetch(imageSearchUrl)
-    .then(function(response){
-        return response.json();
-    })      
-    .then(function(res){
-      if(res && res.photos && res.photos.photo && isArray(res.photos.photo)) {
-        if(fromScrollFlag) {
-            photoData = photoData.concat(res.photos.photo);
-        } else {
-            photoData = res.photos.photo;
-        }
-        this.page++;
-        this.setState({loading:false,photoData:photoData});
-        this.apiCallSent = false;
-      }
-    }.bind(this));
-      
-  }
+        {/* Content Section */}
+        <main className="mt-12">
+          {loading && !hasPhotos && <LoaderComponent />}
 
-  /**
-   * @name handleInput
-   * @description Method will set searchInput value when user is typing in search input
-   * @method ImageSearching
-   */
-  handleInput(e) {
-    let val = e.target.value.trim();
-    this.setState({searchInput: val,userTyping:true});
-    if(val && val !== '') {
-      HelperObject.debouncing(this.getPhotos, 1500);
-    }
-  }
+          {!loading && !hasPhotos && searchInput && <NoResultComponent />}
 
-  /**
-   * @name changeSearchInput
-   * @description Method will set searchInput value to cliked search list item value
-   * @method ImageSearching
-   */
-  changeSearchInput = (e) => {
-    let val = e.target.getAttribute('data-value');
-    this.setState({searchInput: val});
-    this.getPhotos(false, val) ;
-  }
+          {hasPhotos && (
+            <ListComponent
+              photos={photos}
+              onImageClick={handleImageClick}
+            />
+          )}
 
-  /**
-   * @name clearFilters
-   * @description Method will clear the search input list history
-   * @method ImageSearching
-   */
-  clearFilters = () => {
-    if(localStorage.getItem('searchInputsList')) {
-      let searchInputsList = [];
-      localStorage.setItem('searchInputsList',JSON.stringify(searchInputsList));
-      this.setState({userTyping:false});
-    }
-  }
+          {loading && hasPhotos && (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-purple-500 border-t-transparent"></div>
+            </div>
+          )}
+        </main>
+      </div>
 
-  /**
-   * @name clearSearchInput
-   * @description Method will clear the search input value
-   * @method ImageSearching
-   */
-  clearSearchInput = () => {
-    this.setState({searchInput:''})
-  }
-
-  /**
-   * @name setDataToSearchList
-   * @description Sets data to search suggestions list
-   * @method ImageSearching
-   */
-  setDataToSearchList = (val) => {
-    let searchList = [];
-    if(HelperObject.getFromLocalStorage('searchInputsList')) {
-      searchList = HelperObject.getFromLocalStorage('searchInputsList')
-    }
-    if(searchList.indexOf(val) === -1)  {
-      if(searchList.length === commonConfig.searchListLimit) {
-        searchList.splice(0,1);
-      }
-      searchList.push(val);
-    } 
-    HelperObject.setToLocalStorage('searchInputsList',searchList);
-  }
-
-  /**
-   * @name render
-   * @description renders the component according to provided content and returns the appropriate HTML
-   * @method ImageSearching
-   * @returns HTML
-   */
-  render() {
-    let picturesData,modalData,
-        photoData = this.state.photoData;
-        
-    if(this.state.loading) {
-      picturesData = <LoaderComponent></LoaderComponent>
-    } else {
-        if(photoData.length > 0) {
-        	picturesData = <ListComponent 
-								photoData={photoData}
-								openPhotoModel={(e) => this.openPhotoModel(e)}
-							></ListComponent>
-        } else if(this.page > 1){
-        	picturesData = <NoResultComponent></NoResultComponent>
-        }     
-	}
-	
-    if(this.state.modalIsOpen) {
-      modalData = <ModelComponent 
-                    modelImgData={this.state.modelImgData} 
-					closeModal={this.closeModal}
-				></ModelComponent>
-    } else {
-		modalData = '';
-	}
-
-    return (
-      <>
-        <div className="App">
-          <div className="search-content-section">
-            <h1>SUPPLY AI ReactJS Assignment</h1>
-            <SearchComponent 
-        		userTyping = {this.state.userTyping}
-				searchInput = {this.state.searchInput}
-				onMouseLeave= {this.hideSearchList}
-				handleInput = {(e) => this.handleInput(e)}
-				onInputFocus = {this.showSearchList}
-				onSearchItemClick = {(e) => this.changeSearchInput(e)}
-				clearFilters = {this.clearFilters}
-				clearSearchInput= {this.clearSearchInput}
-            ></SearchComponent>
-            {picturesData}
-          </div>
-        </div>
-		{modalData}
-      </>
-    );
-  }
+      {/* Image Modal */}
+      {selectedImage && (
+        <ModalComponent
+          photo={selectedImage}
+          onClose={handleCloseModal}
+        />
+      )}
+    </div>
+  );
 }
 
-export default ImageSearching;
+export default App;
